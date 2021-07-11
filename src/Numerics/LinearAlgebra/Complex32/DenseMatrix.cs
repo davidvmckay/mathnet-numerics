@@ -54,14 +54,14 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
         /// </summary>
         /// <remarks>Using this instead of the RowCount property to speed up calculating
         /// a matrix index in the data array.</remarks>
-        private readonly int _rowCount;
+        readonly int _rowCount;
 
         /// <summary>
         /// Number of columns.
         /// </summary>
         /// <remarks>Using this instead of the ColumnCount property to speed up calculating
         /// a matrix index in the data array.</remarks>
-        private readonly int _columnCount;
+        readonly int _columnCount;
 
         /// <summary>
         /// Gets the matrix's data.
@@ -141,6 +141,17 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
         /// A new memory block will be allocated for storing the matrix.
         /// </summary>
         public static DenseMatrix OfIndexed(int rows, int columns, IEnumerable<Tuple<int, int, Complex32>> enumerable)
+        {
+            return new DenseMatrix(DenseColumnMajorMatrixStorage<Complex32>.OfIndexedEnumerable(rows, columns, enumerable));
+        }
+
+        /// <summary>
+        /// Create a new dense matrix as a copy of the given indexed enumerable.
+        /// Keys must be provided at most once, zero is assumed if a key is omitted.
+        /// This new matrix will be independent from the enumerable.
+        /// A new memory block will be allocated for storing the matrix.
+        /// </summary>
+        public static DenseMatrix OfIndexed(int rows, int columns, IEnumerable<(int, int, Complex32)> enumerable)
         {
             return new DenseMatrix(DenseColumnMajorMatrixStorage<Complex32>.OfIndexedEnumerable(rows, columns, enumerable));
         }

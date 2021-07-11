@@ -49,8 +49,7 @@ namespace MathNet.Numerics.RootFinding
         /// <exception cref="NonConvergenceException"></exception>
         public static double FindRoot(Func<double, double> f, Func<double, double> df, double lowerBound, double upperBound, double accuracy = 1e-8, int maxIterations = 100, int subdivision = 20)
         {
-            double root;
-            if (TryFindRoot(f, df, lowerBound, upperBound, accuracy, maxIterations, subdivision, out root))
+            if (TryFindRoot(f, df, lowerBound, upperBound, accuracy, maxIterations, subdivision, out var root))
             {
                 return root;
             }
@@ -92,6 +91,11 @@ namespace MathNet.Numerics.RootFinding
 
             root = 0.5*(lowerBound + upperBound);
             double fx = f(root);
+            if (fx == 0.0)
+            {
+                return true;
+            }
+
             double lastStep = Math.Abs(upperBound - lowerBound);
             for (int i = 0; i < maxIterations; i++)
             {
@@ -120,6 +124,11 @@ namespace MathNet.Numerics.RootFinding
                     // Bisection
                     root = 0.5*(upperBound + lowerBound);
                     fx = f(root);
+                    if (fx == 0.0)
+                    {
+                        return true;
+                    }
+
                     lastStep = 0.5*Math.Abs(upperBound - lowerBound);
                     if (Math.Sign(fx) == Math.Sign(fmin))
                     {
@@ -147,6 +156,11 @@ namespace MathNet.Numerics.RootFinding
 
                 // Evaluation
                 fx = f(root);
+                if (fx == 0.0)
+                {
+                    return true;
+                }
+
                 lastStep = step;
 
                 // Update bounds
@@ -172,9 +186,9 @@ namespace MathNet.Numerics.RootFinding
         static bool TryScanForCrossingsWithRoots(Func<double, double> f, Func<double, double> df, double lowerBound, double upperBound, double accuracy, int maxIterations, int subdivision, out double root)
         {
             var zeroCrossings = ZeroCrossingBracketing.FindIntervalsWithin(f, lowerBound, upperBound, subdivision);
-            foreach (Tuple<double, double> bounds in zeroCrossings)
+            foreach ((double lower, double upper) in zeroCrossings)
             {
-                if (TryFindRoot(f, df, bounds.Item1, bounds.Item2, accuracy, maxIterations, subdivision, out root))
+                if (TryFindRoot(f, df, lower, upper, accuracy, maxIterations, subdivision, out root))
                 {
                     return true;
                 }

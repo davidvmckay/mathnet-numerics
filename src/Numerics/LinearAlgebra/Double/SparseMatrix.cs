@@ -117,6 +117,17 @@ namespace MathNet.Numerics.LinearAlgebra.Double
         }
 
         /// <summary>
+        /// Create a new sparse matrix as a copy of the given indexed enumerable.
+        /// Keys must be provided at most once, zero is assumed if a key is omitted.
+        /// This new matrix will be independent from the enumerable.
+        /// A new memory block will be allocated for storing the matrix.
+        /// </summary>
+        public static SparseMatrix OfIndexed(int rows, int columns, IEnumerable<(int, int, double)> enumerable)
+        {
+            return new SparseMatrix(SparseCompressedRowMatrixStorage<double>.OfIndexedEnumerable(rows, columns, enumerable));
+        }
+
+        /// <summary>
         /// Create a new sparse matrix as a copy of the given enumerable.
         /// The enumerable is assumed to be in row-major order (row by row).
         /// This new matrix will be independent from the enumerable.
@@ -410,7 +421,7 @@ namespace MathNet.Numerics.LinearAlgebra.Double
         /// Puts the lower triangle of this matrix into the result matrix.
         /// </summary>
         /// <param name="result">Where to store the lower triangle.</param>
-        private void LowerTriangleImpl(Matrix<double> result)
+        void LowerTriangleImpl(Matrix<double> result)
         {
             var rowPointers = _storage.RowPointers;
             var columnIndices = _storage.ColumnIndices;
@@ -475,7 +486,7 @@ namespace MathNet.Numerics.LinearAlgebra.Double
         /// Puts the upper triangle of this matrix into the result matrix.
         /// </summary>
         /// <param name="result">Where to store the lower triangle.</param>
-        private void UpperTriangleImpl(Matrix<double> result)
+        void UpperTriangleImpl(Matrix<double> result)
         {
             var rowPointers = _storage.RowPointers;
             var columnIndices = _storage.ColumnIndices;
@@ -541,7 +552,7 @@ namespace MathNet.Numerics.LinearAlgebra.Double
         /// Puts the strictly lower triangle of this matrix into the result matrix.
         /// </summary>
         /// <param name="result">Where to store the lower triangle.</param>
-        private void StrictlyLowerTriangleImpl(Matrix<double> result)
+        void StrictlyLowerTriangleImpl(Matrix<double> result)
         {
             var rowPointers = _storage.RowPointers;
             var columnIndices = _storage.ColumnIndices;
@@ -607,7 +618,7 @@ namespace MathNet.Numerics.LinearAlgebra.Double
         /// Puts the strictly upper triangle of this matrix into the result matrix.
         /// </summary>
         /// <param name="result">Where to store the lower triangle.</param>
-        private void StrictlyUpperTriangleImpl(Matrix<double> result)
+        void StrictlyUpperTriangleImpl(Matrix<double> result)
         {
             var rowPointers = _storage.RowPointers;
             var columnIndices = _storage.ColumnIndices;

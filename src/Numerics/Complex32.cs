@@ -73,13 +73,13 @@ namespace MathNet.Numerics
         /// The real component of the complex number.
         /// </summary>
         [DataMember(Order = 1)]
-        private readonly float _real;
+        readonly float _real;
 
         /// <summary>
         /// The imaginary component of the complex number.
         /// </summary>
         [DataMember(Order = 2)]
-        private readonly float _imag;
+        readonly float _imag;
 
         /// <summary>
         /// Initializes a new instance of the Complex32 structure with the given real
@@ -489,22 +489,21 @@ namespace MathNet.Numerics
         /// <summary>
         /// Evaluate all square roots of this <c>Complex32</c>.
         /// </summary>
-        public Tuple<Complex32, Complex32> SquareRoots()
+        public (Complex32, Complex32) SquareRoots()
         {
             var principal = SquareRoot();
-            return new Tuple<Complex32, Complex32>(principal, -principal);
+            return (principal, -principal);
         }
 
         /// <summary>
         /// Evaluate all cubic roots of this <c>Complex32</c>.
         /// </summary>
-        public Tuple<Complex32, Complex32, Complex32> CubicRoots()
+        public (Complex32, Complex32, Complex32) CubicRoots()
         {
             float r = (float)Math.Pow(Magnitude, 1d / 3d);
             float theta = Phase / 3;
             const float shift = (float)Constants.Pi2 / 3;
-            return new Tuple<Complex32, Complex32, Complex32>(
-                FromPolarCoordinates(r, theta),
+            return (FromPolarCoordinates(r, theta),
                 FromPolarCoordinates(r, theta + shift),
                 FromPolarCoordinates(r, theta - shift));
         }
@@ -668,7 +667,7 @@ namespace MathNet.Numerics
         /// <param name="d">Im second</param>
         /// <param name="swapped"></param>
         /// <returns></returns>
-        private static Complex32 InternalDiv(float a, float b, float c, float d, bool swapped)
+        static Complex32 InternalDiv(float a, float b, float c, float d, bool swapped)
         {
             float r = d / c;
             float t = 1 / (c + d * r);
@@ -927,8 +926,7 @@ namespace MathNet.Numerics
             var token = tokens.First;
 
             // parse the left part
-            bool isLeftPartImaginary;
-            var leftPart = ParsePart(ref token, out isLeftPartImaginary, formatProvider);
+            var leftPart = ParsePart(ref token, out var isLeftPartImaginary, formatProvider);
             if (token == null)
             {
                 return isLeftPartImaginary ? new Complex32(0, leftPart) : new Complex32(leftPart, 0);
@@ -946,16 +944,14 @@ namespace MathNet.Numerics
                     throw new FormatException();
                 }
 
-                bool isRightPartImaginary;
-                var rightPart = ParsePart(ref token, out isRightPartImaginary, formatProvider);
+                var rightPart = ParsePart(ref token, out _, formatProvider);
 
                 return new Complex32(leftPart, rightPart);
             }
             else
             {
                 // format: real + imag
-                bool isRightPartImaginary;
-                var rightPart = ParsePart(ref token, out isRightPartImaginary, formatProvider);
+                var rightPart = ParsePart(ref token, out var isRightPartImaginary, formatProvider);
 
                 if (!(isLeftPartImaginary ^ isRightPartImaginary))
                 {
@@ -978,7 +974,7 @@ namespace MathNet.Numerics
         /// </param>
         /// <returns>Resulting part as float.</returns>
         /// <exception cref="FormatException"/>
-        private static float ParsePart(ref LinkedListNode<string> token, out bool imaginary, IFormatProvider format)
+        static float ParsePart(ref LinkedListNode<string> token, out bool imaginary, IFormatProvider format)
         {
             imaginary = false;
             if (token == null)

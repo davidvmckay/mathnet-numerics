@@ -119,6 +119,17 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
         }
 
         /// <summary>
+        /// Create a new sparse matrix as a copy of the given indexed enumerable.
+        /// Keys must be provided at most once, zero is assumed if a key is omitted.
+        /// This new matrix will be independent from the enumerable.
+        /// A new memory block will be allocated for storing the matrix.
+        /// </summary>
+        public static SparseMatrix OfIndexed(int rows, int columns, IEnumerable<(int, int, Complex32)> enumerable)
+        {
+            return new SparseMatrix(SparseCompressedRowMatrixStorage<Complex32>.OfIndexedEnumerable(rows, columns, enumerable));
+        }
+
+        /// <summary>
         /// Create a new sparse matrix as a copy of the given enumerable.
         /// The enumerable is assumed to be in row-major order (row by row).
         /// This new matrix will be independent from the enumerable.
@@ -412,7 +423,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
         /// Puts the lower triangle of this matrix into the result matrix.
         /// </summary>
         /// <param name="result">Where to store the lower triangle.</param>
-        private void LowerTriangleImpl(Matrix<Complex32> result)
+        void LowerTriangleImpl(Matrix<Complex32> result)
         {
             var rowPointers = _storage.RowPointers;
             var columnIndices = _storage.ColumnIndices;
@@ -477,7 +488,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
         /// Puts the upper triangle of this matrix into the result matrix.
         /// </summary>
         /// <param name="result">Where to store the lower triangle.</param>
-        private void UpperTriangleImpl(Matrix<Complex32> result)
+        void UpperTriangleImpl(Matrix<Complex32> result)
         {
             var rowPointers = _storage.RowPointers;
             var columnIndices = _storage.ColumnIndices;
@@ -543,7 +554,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
         /// Puts the strictly lower triangle of this matrix into the result matrix.
         /// </summary>
         /// <param name="result">Where to store the lower triangle.</param>
-        private void StrictlyLowerTriangleImpl(Matrix<Complex32> result)
+        void StrictlyLowerTriangleImpl(Matrix<Complex32> result)
         {
             var rowPointers = _storage.RowPointers;
             var columnIndices = _storage.ColumnIndices;
@@ -609,7 +620,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
         /// Puts the strictly upper triangle of this matrix into the result matrix.
         /// </summary>
         /// <param name="result">Where to store the lower triangle.</param>
-        private void StrictlyUpperTriangleImpl(Matrix<Complex32> result)
+        void StrictlyUpperTriangleImpl(Matrix<Complex32> result)
         {
             var rowPointers = _storage.RowPointers;
             var columnIndices = _storage.ColumnIndices;

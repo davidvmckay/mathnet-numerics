@@ -295,22 +295,21 @@ namespace MathNet.Numerics
         /// <summary>
         /// Evaluate all square roots of this <c>Complex</c>.
         /// </summary>
-        public static Tuple<Complex, Complex> SquareRoots(this Complex complex)
+        public static (Complex, Complex) SquareRoots(this Complex complex)
         {
             var principal = SquareRoot(complex);
-            return new Tuple<Complex, Complex>(principal, -principal);
+            return (principal, -principal);
         }
 
         /// <summary>
         /// Evaluate all cubic roots of this <c>Complex</c>.
         /// </summary>
-        public static Tuple<Complex, Complex, Complex> CubicRoots(this Complex complex)
+        public static (Complex, Complex, Complex) CubicRoots(this Complex complex)
         {
             var r = Math.Pow(complex.Magnitude, 1d/3d);
             var theta = complex.Phase/3;
             const double shift = Constants.Pi2/3;
-            return new Tuple<Complex, Complex, Complex>(
-                Complex.FromPolarCoordinates(r, theta),
+            return (Complex.FromPolarCoordinates(r, theta),
                 Complex.FromPolarCoordinates(r, theta + shift),
                 Complex.FromPolarCoordinates(r, theta - shift));
         }
@@ -506,8 +505,7 @@ namespace MathNet.Numerics
             var token = tokens.First;
 
             // parse the left part
-            bool isLeftPartImaginary;
-            var leftPart = ParsePart(ref token, out isLeftPartImaginary, formatProvider);
+            var leftPart = ParsePart(ref token, out var isLeftPartImaginary, formatProvider);
             if (token == null)
             {
                 return isLeftPartImaginary ? new Complex(0, leftPart) : new Complex(leftPart, 0);
@@ -525,16 +523,14 @@ namespace MathNet.Numerics
                     throw new FormatException();
                 }
 
-                bool isRightPartImaginary;
-                var rightPart = ParsePart(ref token, out isRightPartImaginary, formatProvider);
+                var rightPart = ParsePart(ref token, out _, formatProvider);
 
                 return new Complex(leftPart, rightPart);
             }
             else
             {
                 // format: real + imag
-                bool isRightPartImaginary;
-                var rightPart = ParsePart(ref token, out isRightPartImaginary, formatProvider);
+                var rightPart = ParsePart(ref token, out var isRightPartImaginary, formatProvider);
 
                 if (!(isLeftPartImaginary ^ isRightPartImaginary))
                 {
@@ -557,7 +553,7 @@ namespace MathNet.Numerics
         /// </param>
         /// <returns>Resulting part as double.</returns>
         /// <exception cref="FormatException"/>
-        private static double ParsePart(ref LinkedListNode<string> token, out bool imaginary, IFormatProvider format)
+        static double ParsePart(ref LinkedListNode<string> token, out bool imaginary, IFormatProvider format)
         {
             imaginary = false;
             if (token == null)

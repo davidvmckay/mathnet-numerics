@@ -123,9 +123,7 @@ namespace MathNet.Numerics.Data.Text
 
         public static Matrix<T> ReadMatrix<T>(TextReader reader) where T : struct, IEquatable<T>, IFormattable
         {
-            bool complex, sparse;
-            MatrixMarketSymmetry symmetry;
-            ExpectHeader(reader, true, out complex, out sparse, out symmetry);
+            ExpectHeader(reader, true, out var complex, out var sparse, out var symmetry);
 
             var parse = CreateValueParser<T>(complex);
 
@@ -135,7 +133,7 @@ namespace MathNet.Numerics.Data.Text
 
             if (sparse)
             {
-                var indexed = ReadTokenLines(reader).Select(tokens => new Tuple<int, int, T>(int.Parse(tokens[0]) - 1, int.Parse(tokens[1]) - 1, parse(2, tokens)));
+                var indexed = ReadTokenLines(reader).Select(tokens => (int.Parse(tokens[0]) - 1, int.Parse(tokens[1]) - 1, parse(2, tokens)));
                 return Matrix<T>.Build.SparseOfIndexed(rows, cols, symmetry == MatrixMarketSymmetry.General ? indexed : ExpandSparse(symmetry, indexed));
             }
 
@@ -200,9 +198,7 @@ namespace MathNet.Numerics.Data.Text
         public static Vector<T> ReadVector<T>(TextReader reader)
             where T : struct, IEquatable<T>, IFormattable
         {
-            bool complex, sparse;
-            MatrixMarketSymmetry symmetry;
-            ExpectHeader(reader, false, out complex, out sparse, out symmetry);
+            ExpectHeader(reader, false, out var complex, out var sparse, out _);
 
             var parse = CreateValueParser<T>(complex);
 
@@ -211,7 +207,7 @@ namespace MathNet.Numerics.Data.Text
 
             if (sparse)
             {
-                var indexedSeq = ReadTokenLines(reader).Select(tokens => new Tuple<int, T>(int.Parse(tokens[0]) - 1, parse(1, tokens)));
+                var indexedSeq = ReadTokenLines(reader).Select(tokens => (int.Parse(tokens[0]) - 1, parse(1, tokens)));
                 return Vector<T>.Build.SparseOfIndexed(length, indexedSeq);
             }
 
@@ -330,7 +326,7 @@ namespace MathNet.Numerics.Data.Text
             }
         }
 
-        static IEnumerable<Tuple<int, int, T>> ExpandSparse<T>(MatrixMarketSymmetry symmetry, IEnumerable<Tuple<int, int, T>> indexedValues)
+        static IEnumerable<(int, int, T)> ExpandSparse<T>(MatrixMarketSymmetry symmetry, IEnumerable<(int, int, T)> indexedValues)
         {
             var map = CreateSymmetryMap<T>(symmetry);
             foreach (var x in indexedValues)
@@ -338,7 +334,7 @@ namespace MathNet.Numerics.Data.Text
                 yield return x;
                 if (x.Item1 != x.Item2)
                 {
-                    yield return new Tuple<int, int, T>(x.Item2, x.Item1, map(x.Item3));
+                    yield return (x.Item2, x.Item1, map(x.Item3));
                 }
             }
         }
